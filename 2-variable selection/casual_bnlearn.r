@@ -3,7 +3,8 @@ library(bnlearn)
 
 data <- read_csv("./data8.csv")
 vars <- data %>%
-    select(-city, -'年份')
+    select(-city, -年份) %>%
+    scale %>% as_tibble
 
 
 # fit ---------------------------------------------------------------------
@@ -26,9 +27,9 @@ h2pc_res <- h2pc(vars)
 # result ------------------------------------------------------------------
 
 res <- tabu_res
+res$nodes$score$nbr
 
 print(res$arcs)
 graphviz.plot(res)
-res$nodes$score$nbr
 
 

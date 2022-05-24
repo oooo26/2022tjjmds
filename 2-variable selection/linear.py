@@ -13,16 +13,22 @@ model = Lasso(alpha=0.15)
 model.fit(vars, data['score'])
 print(np.count_nonzero(model.coef_))
 
-ind= np.nonzero(model.coef_)
+ind= np.nonzero(model.coef_)[0]
 print(vars.columns[ind])
+
+# vars_lasso = vars.iloc[:,ind]
+# vars_lasso.corr()
 
 # %% abess
 model = abess.LinearRegression(support_size = range(14), ic_type='bic')
 model.fit(vars, data['score'])
 print(np.count_nonzero(model.coef_))
 
-ind= np.nonzero(model.coef_)
+ind= np.nonzero(model.coef_)[0]
 print(vars.columns[ind])
+
+vars_lasso = vars.iloc[:,ind]
+vars_lasso.corr()
 
 # %% save
 new_data = pd.concat([data[['city', '年份', 'score']], vars[vars.columns[ind]]], axis=1)

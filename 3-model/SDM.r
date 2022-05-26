@@ -88,3 +88,14 @@ resdiff <- res1 %>%
     select(variable) %>%
     mutate(res2[2:4] - res1[2:4])
 resdiff
+
+res_coef <- tibble(
+    variable = rep(res1$variable, 2),
+    rho = c(res1$lag.coef, res2$lag.coef),
+    year = c(rep("2011-2016", length(res1$variable)),
+             rep("2017-2020", length(res1$variable)))
+)
+
+ggplot(res_coef, aes(x=variable, y=rho, fill=year)) +
+    geom_col(position="dodge2", width=0.7)
+ggsave("sdm.pdf", device = "pdf", width=10, height=5)

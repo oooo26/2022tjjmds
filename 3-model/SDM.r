@@ -21,15 +21,22 @@ compute_w <- function(data){
         )
     xy <- SpatialPoints(xy)
     # neighbor
-    k <- nrow(data) %/% 3 - 1
-    nb <- knn2nb(knearneigh(xy, k = k))
-    nb2listw(nb)
+    n <- nrow(data) %/% 3
+    nb <- dnearneigh(xy,0, 0.5, longlat=T)
+    print(sapply(nb, function(x){length(x)}))
+    # weight by dist
+    dlist <- nbdists(nb, xy)
+    dlist <- lapply(dlist, function(x){x[x == 0] = 0.01;x})
+    dlist <- lapply(dlist, function(x){1/x})
+    nb2listw(nb, dlist)
 }
 
-data <- read_csv("./selected.csv") %>% filter(年份>=2017)
+data <- read_csv("./selected.csv")# %>% filter(年份<2017)
 vars <- data %>% select(-city, -score, -年份) %>% scale
 score <- data$score
 listW <- compute_w(data)
+
+print(listW$weights %>% sapply(function(x){x}))
 
 
 # moran
@@ -63,6 +70,21 @@ for (i in 1:length(v)){
             LR.p.value = model_summary[[i]]$LR1$p.value
         ))
 }
-
 result
 
+saveRDS(result, file="before2017.rds")
+saveRDS(result, file="after2017.rds")
+
+
+# analysis ----------------------------------------------------------------
+
+res1 <- readRDS("before2017.rds")
+res2 <- readRDS("after2017.rds")
+
+res1 %>% select(-Wald.p.value, -LR.p.value, -Wald.statistic, -LR.statistic) %>% knitr::kable("latex")
+res2 %>% select(-Wald.p.value, -LR.p.value, -Wald.statistic, -LR.statistic) %>% knitr::kable("latex")
+
+resdiff <- res1 %>%
+    select(variable) %>%
+    mutate(res2[2:4] - res1[2:4])
+resdiff

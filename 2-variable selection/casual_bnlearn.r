@@ -27,9 +27,20 @@ h2pc_res <- h2pc(vars)
 # result ------------------------------------------------------------------
 
 res <- tabu_res
-res$nodes$score$nbr
+nodes <- c(res$nodes$score$nbr, "score")
 
-print(res$arcs)
-graphviz.plot(res)
+# print(res$arcs)
+# graphviz.plot(res)
 
+adj <- matrix(0, length(nodes), length(nodes))
+for (i in 1:length(nodes)){
+    for (j in 1:length(nodes)){
+        if (any( res$nodes[[nodes[i]]]$children == nodes[j] )){
+            adj[i, j] = 1
+        }
+    }
+}
+colnames(adj) <- nodes
+write.csv(adj, "dag.csv", row.names = FALSE)
 
+write.csv(data[c("city", "年份", nodes)], "selected.csv", row.names = FALSE)

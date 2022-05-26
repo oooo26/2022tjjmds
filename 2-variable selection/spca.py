@@ -16,6 +16,9 @@ print(np.count_nonzero(model.components_))
 ind= np.nonzero(model.components_)[1]
 print(vars.columns[ind])
 
+vars_spca = vars.iloc[:,ind]
+vars_spca.corr()
+
 # %% sklearn - cd
 model = SparsePCA(n_components=1, random_state=0, alpha=5.3, method="cd")
 model.fit(vars)

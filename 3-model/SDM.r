@@ -1,6 +1,9 @@
 library(tidyverse)
 library(spatialreg)
 library(spdep)
+library(showtext)
+
+font_add("heiti", "simhei.ttf")
 
 compute_w <- function(data){
     # add spatial information
@@ -83,19 +86,28 @@ res2 <- readRDS("after2017.rds")
 
 res1 %>% select(-Wald.p.value, -LR.p.value, -Wald.statistic, -LR.statistic) %>% knitr::kable("latex")
 res2 %>% select(-Wald.p.value, -LR.p.value, -Wald.statistic, -LR.statistic) %>% knitr::kable("latex")
-
-resdiff <- res1 %>%
-    select(variable) %>%
+variable <- c("第二产业产值（万元）",
+              "人均生产总值（按常住人口计算）（元）",
+              "小学在校学生数（人）",
+              "小学教职工人数（人）",
+              "进口总值（万美元）",
+              "国内旅游（万人次）",
+              "增值税（元）",
+              "一般公共服务支出（元）",
+              "流动电话用户数目（万户）")
+resdiff <- tibble(variable=variable) %>%
     mutate(res2[2:4] - res1[2:4])
 resdiff
 
 res_coef <- tibble(
-    variable = rep(res1$variable, 2),
+    variable = rep(variable, 2),
     rho = c(res1$lag.coef, res2$lag.coef),
     year = c(rep("2011-2016", length(res1$variable)),
              rep("2017-2020", length(res1$variable)))
 )
 
+showtext_auto()
 ggplot(res_coef, aes(x=variable, y=rho, fill=year)) +
-    geom_col(position="dodge2", width=0.7)
+    geom_col(position="dodge2", width=0.7) +
+    theme(axis.text.x=element_text(angle = -30, hjust = 0))
 ggsave("sdm.pdf", device = "pdf", width=10, height=5)
